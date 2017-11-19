@@ -14,10 +14,10 @@ class Event:
         self.W[serverId] = startServiceTime - entryTime
         self.currentServer = serverId
 
-    def finishService(self, finishServiceTime, serverId)
+    def finishService(self, finishServiceTime, serverId):
         # VERIFICAR SE ELE TA TERMINANDO O SERVIÇO QUE COMEÇOU DE FATO 
-        if(self.currentServer = serverId)
-            self.T = W[]
+        if(self.currentServer == serverId):
+            self.T = W
             # DO SHIT
 
         else:

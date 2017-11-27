@@ -1,5 +1,5 @@
-class FIFOQueue:
-    """A sample implementation of a First-In-First-Out
+class Queue:
+    """A simple implementation of a First-In-First-Out
        data structure."""
     def __init__(self):
         self.in_stack = []
@@ -14,3 +14,6 @@ class FIFOQueue:
             self.out_stack = self.in_stack
             self.in_stack = []
         return self.out_stack.pop()
+
+    def length(self):
+        return len(self.in_stack)

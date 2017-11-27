@@ -1,5 +1,9 @@
-import FIFOQueue
-from client import Client
+from queue import *
+from client import *
+from event import *
+from utils import *
+
+
 import numpy as np
 import datetime
 
@@ -47,7 +51,7 @@ def main():
 	# 	x.append(np.random.exponential(beta))
 	# 	i+=1
 	
-	queue1 = FIFOQueue.FIFOQueue()
+	events = Queue()
 	
 
 	print("======================================")
@@ -57,20 +61,42 @@ def main():
 	
 	i=0
 	j=0
-	server = []
 	numArrivals = 0
 	allServicesTime = []
-	while(i < 10000)	:
-		newClient = Client(i, np.random.exponential(beta))
-		queue1.push(newClient)
+	server = []
+
+	newClient = Client(i, np.random.exponential(beta), ServiceType.ONE)
+	events.push(Event(newClient, EventType.ARRIVAL))
+	numArrivals += 1
+	
+	##TODO: Verificar se o tempo de um servico conta pro tempo de espera W de todo mundo
+
+	while(i < 100000):
 		numArrivals += 1
-		if(len(server) == 0):
-			nextClient = queue1.pop()
-			nextClient.startService(nextClient.entryTime, 0)
-			server.append(newClient)
-			nextClient.finishService()
-			server = []
-			allServicesTime.append(nextClient.getTotalWaitTime())
+		if(events.length() > 0):
+			nextEvent = events.pop()
+			## PEGO O EVENTO DO COMECO DA FILA E SE FOR DO TIPO DE CHEGADA
+			if(nextEvent.eventType == EventType.ARRIVAL):
+				## VERIFICO SE O SERVIDOR JA NAO TEM ALGUEM OCUPADO
+				if(len(server) == 0):
+					nextEvent.EventType = EventType.SERVICE
+					server.append(nextEvent.client)
+					nextEvent.client.startService(nextEvent.client.serverId)
+					events.push(nextEvent)
+				else:
+					# SE HOUVER ALGUEM, TEM QUE TESTAR SE EH DO TIPO 1 OU 2
+					# se for trocar o tipo de evento e continuar
+					print("PREEMPÇÃO")
+			elif (nextEvent.eventType == EventType.SERVICE):
+				# calcular o tempo de servico e adicionar ao cliente
+				print(" SERVICE")
+				## implementar servico
+			else:
+				print("INTERRUPTION")
+				## tratar preempção
+			
+			## colocar um ARRIVAL aqui (acho)
+		# COLETAR A INFORMACAO DO CLIENTE
 		i+=1
 	print("MEDIA W1 " + str(np.mean(allServicesTime)))
 	W1_t = arrivalRate/(1-arrivalRate)

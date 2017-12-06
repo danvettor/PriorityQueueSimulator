@@ -2,6 +2,10 @@ package main;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.math3.distribution.ChiSquaredDistribution;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.TDistribution;
+
 import model.Resultado;
 import util.EstatisticaTeorica;
 import controller.Controlador;
@@ -85,42 +89,52 @@ public class Main
 		
 		System.out.println("N1: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.n1_t());				
-		intervaloDeConfianca(n1,"n1");
-
+		//intervaloDeConfianca(n1,"n1");
+		System.out.println("");
+		
 		System.out.println("N2: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.n2_t());
-		intervaloDeConfianca(n2,"n2");
+		//intervaloDeConfianca(n2,"n2");
+		System.out.println("");
 
 		System.out.println("T1: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.t1_t());
-		intervaloDeConfianca(t1,"t1");
+		//intervaloDeConfianca(t1,"t1");
+		System.out.println("");
 
 		System.out.println("T2: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.t2_t());
-		intervaloDeConfianca(t2,"t1");		
+		//intervaloDeConfianca(t2,"t1");		
+		System.out.println("");
 
 		System.out.println("Nq1: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.nq1_t());
-		intervaloDeConfianca(nq1,"nq1");
+		//intervaloDeConfianca(nq1,"nq1");
+		System.out.println("");
 
 		System.out.println("Nq2: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.nq2_t());
-		intervaloDeConfianca(nq2,"nq2");
+		//intervaloDeConfianca(nq2,"nq2");
+		System.out.println("");
 
 		System.out.println("W1: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.w1_t());
 		intervaloDeConfianca(w1,"w1");
+		System.out.println("");
 
 		System.out.println("W2: ");
 		System.out.println("Teórico: " + EstatisticaTeorica.w2_t());
 		intervaloDeConfianca(w2,"w2");
+		System.out.println("");
 
 		System.out.println("Var(W1): ");
 		System.out.println("Teórico: " + EstatisticaTeorica.var_w1_t());
-		intervaloDeConfianca(variancias1,"varw1");
+		//intervaloDeConfianca(variancias1,"varw1");
+		System.out.println("");
 
 		System.out.println("Var(W2): ");
-		intervaloDeConfianca(variancias2,"varw2");
+		//intervaloDeConfianca(variancias2,"varw2");
+		System.out.println("");
 	}
 	
 	// Calcula o intervalo de Confiança das Médias
@@ -161,12 +175,40 @@ public class Main
 			minimoIntervalo = mediaDasMedias - intervalo;
 			maximoIntervalo = mediaDasMedias + intervalo;			
 			
+			TDistribution student = new TDistribution(novaMedia - 1);
+			
+			double z = 1.0 - (1 - 0.95) / 2;
+			
+			double critVal = student.inverseCumulativeProbability(z);
+	        // Calculate confidence interval
+			double trust = critVal * desvioPadrao / Math.sqrt(novaMedia);
+			
+			
+			NormalDistribution normal = new NormalDistribution();
+			
+			critVal = normal.inverseCumulativeProbability(z);
+			
+			double normalLo = mediaDasMedias - (critVal * (desvioPadrao/novaMedia));
+			double normalHi = mediaDasMedias + (critVal * (desvioPadrao/novaMedia));
+			
+
+			ChiSquaredDistribution chisquare = new ChiSquaredDistribution(novaMedia - 1);
+			
+			critVal = chisquare.inverseCumulativeProbability(z);
+			double chisquareLo = ((novaMedia - 1) * desvioPadrao * desvioPadrao) / critVal;
+			double chisquareHi = ((novaMedia - 1) * desvioPadrao * desvioPadrao) / chisquare.inverseCumulativeProbability(0.95 / 2);
+			
+			System.out.println("Intervalo de confiança Normal: " + (normalLo) + " < u < " + (normalHi) );
+			System.out.printf("Intervalor de confiança ChiQuadrado: %.8f < dv^2 < %.8f\nVariância: %.8f\n", chisquareLo, chisquareHi, (desvioPadrao*desvioPadrao) );
+			
 			System.out.println("Desvio-Padrao: " + desvioPadrao);
 
 			System.out.println("Minimo: " + (minimoIntervalo));
 			System.out.println("Maximo: " + (maximoIntervalo));
 			
-			System.out.println("Porcentagem: " + (intervalo * 100 / mediaDasMedias) + "%\n");
+			System.out.println("Porcentagem: " + (intervalo * 100 / mediaDasMedias) + "%");
+			
+			System.out.println("Limite Inferior no Intervalo de Confiança T-Student: " + (mediaDasMedias - trust) + "\nLimite Superior no Intervalo de Confiança T-Student: " + (mediaDasMedias + trust) + "");
 		}
 	}	
 }
